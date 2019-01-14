@@ -1,0 +1,41 @@
+import { Component, OnInit } from '@angular/core';
+import { AuthService } from '../../services/auth.service';
+import { Client } from '../../models/Client';
+import { Router } from '@angular/router';
+import { FlashMessagesService } from 'angular2-flash-messages';
+import { SettingsService } from '../../services/settings.service';
+
+
+@Component({
+  selector: 'app-navbar',
+  templateUrl: './navbar.component.html',
+  styleUrls: ['./navbar.component.scss']
+})
+export class NavbarComponent implements OnInit {
+isLoggedIn : boolean ;
+loggedInUser : string;
+showRegister : boolean;
+  constructor(
+    private authService : AuthService,
+    private router : Router,
+    private FlashMessage : FlashMessagesService,
+    private settingService : SettingsService
+  ) { }
+
+  ngOnInit() {
+    this.authService.getAuth().subscribe(auth => {
+      if(auth){
+        this.isLoggedIn = true;
+        this.loggedInUser = auth.email;
+      }else{
+        this.isLoggedIn = false;
+      }
+    });
+    this.showRegister = this.settingService.getSettings().allowRegistration;
+  }
+  onLogOutClick(){
+    this.authService.logOut();
+    this.FlashMessage.show('you are now logged out!', {cssClass : 'alert-success',timeout : 4000});
+this.router.navigate(['/login']);
+  }
+}
